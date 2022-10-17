@@ -103,7 +103,7 @@ namespace RobotController
         public void PutRobotStraight(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3) {
 
             //todo: change this, use the function Rotate declared below
-            rot0 = NullQ;
+            rot0 = Rotate(NullQ, new MyVec(0f,1f,0f), 69f);
             rot1 = NullQ;
             rot2 = NullQ;
             rot3 = NullQ;
