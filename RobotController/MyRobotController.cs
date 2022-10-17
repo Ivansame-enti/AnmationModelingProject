@@ -5,7 +5,6 @@ using System.Text;
 
 namespace RobotController
 {
-
     public struct MyQuat
     {
 
@@ -13,6 +12,44 @@ namespace RobotController
         public float x;
         public float y;
         public float z;
+
+        public MyQuat(float x2, float y2, float z2, float w2)
+        {
+            this.w = w2;
+            this.x = x2;
+            this.y = y2;
+            this.z = z2;
+        }
+
+        public MyQuat Normalize()
+        {
+            //MyVec v = new MyVec(this.x, this.y, this.z) / Math.Sqrt(Math.Pow(this.x, 2) + Math.Pow(this.y, 2) + Math.Pow(this.z, 2));
+            float magnitude = (float)Math.Sqrt(Math.Pow(this.x, 2.0f) + Math.Pow(this.y, 2.0f) + Math.Pow(this.z, 2.0f));
+            this.x /= magnitude;
+            this.y /= magnitude;
+            this.z /= magnitude;
+            return this;
+        }
+
+        public MyQuat Invert()
+        {
+            this.x *= -1;
+            this.y *= -1;
+            this.z *= -1;
+            return this;
+        }
+
+        public static MyQuat FromAngelAxis(MyVec axis, float a)
+        {
+            axis.Normalize();
+            MyVec v = new MyVec(0, 0, 0);
+            v.x = axis.x * (float)Math.Sin(a / 2);
+            v.y = axis.y * (float)Math.Sin(a / 2);
+            v.z = axis.z * (float)Math.Sin(a / 2);
+            float w = (float)Math.Cos(a / 2);
+            return new MyQuat(v.x, v.y, v.z, w).Normalize();
+        }
+
     }
 
     public struct MyVec
@@ -21,6 +58,23 @@ namespace RobotController
         public float x;
         public float y;
         public float z;
+
+        public MyVec(float x2, float y2, float z2)
+        {
+            this.x = x2;
+            this.y = y2;
+            this.z = z2;
+        }
+
+        public MyVec Normalize()
+        {
+            //MyVec v = new MyVec(this.x, this.y, this.z) / Math.Sqrt(Math.Pow(this.x, 2) + Math.Pow(this.y, 2) + Math.Pow(this.z, 2));
+            float magnitude = (float)Math.Sqrt(Math.Pow(this.x, 2.0f) + Math.Pow(this.y, 2.0f) + Math.Pow(this.z, 2.0f));
+            this.x /= magnitude;
+            this.y /= magnitude;
+            this.z /= magnitude;
+            return this;
+        }
     }
 
 
@@ -38,7 +92,7 @@ namespace RobotController
         public string Hi()
         {
 
-            string s = "hello world from my Robot Controller";
+            string s = "Pablo Periñan Cutillas, Josep Romera Andreu, Ivan Sales Mendez";
             return s;
 
         }
@@ -162,8 +216,19 @@ namespace RobotController
 
         internal MyQuat Multiply(MyQuat q1, MyQuat q2) {
 
+            float x, y, z, w;
+            x = q1.x * q2.w + q1.y * q2.z - q1.z * q2.y + q1.w * q2.x;
+            y = -q1.x * q2.z + q1.y * q2.w + q1.z * q2.x + q1.w * q2.y;
+            z = q1.x * q2.y - q1.y * q2.x + q1.z * q2.w + q1.w * q2.z;
+            w = -q1.x * q2.x - q1.y * q2.y - q1.z * q2.z + q1.w * q2.w;
+
+            /*a.w* b.w - a.x * b.x - a.y * b.y - a.z * b.z,  // 1
+            a.w* b.x + a.x * b.w + a.y * b.z - a.z * b.y,  // i
+            a.w* b.y - a.x * b.z + a.y * b.w + a.z * b.x,  // j
+            a.w* b.z + a.x * b.y - a.y * b.x + a.z * b.w   // k*/
             //todo: change this so it returns a multiplication:
-            return NullQ;
+
+            return new MyQuat(x,y,z,w).Normalize();
 
         }
 
@@ -171,7 +236,7 @@ namespace RobotController
         {
 
             //todo: change this so it takes currentRotation, and calculate a new quaternion rotated by an angle "angle" radians along the normalized axis "axis"
-            return NullQ;
+            return Multiply(currentRotation, MyQuat.FromAngelAxis(axis, angle));
 
         }
 
