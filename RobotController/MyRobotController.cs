@@ -92,16 +92,30 @@ namespace RobotController
     public class MyRobotController
     {
 
-        private float _timer = 0;
-        private float _initialAngle0 = 69.0f;
-        private float _initialAngle1 = 4.37f;
-        private float _initialAngle2 = 60.0f;
-        private float _initialAngle3 = 33.42f;
+        
 
-        private float _endAngle0 = 30.66f;
+        /*private float _initialAngle0 = 69.0f;
+        private float _initialAngle1 = 4.37f;
+        private float _initialAngle2 = 75.79f;
+        private float _initialAngle3 = 33.42f;*/
+
+        private float _initialAngle0 = 74.25f;
+        private float _initialAngle1 = -11.387f;
+        private float _initialAngle2 = 85.75f;
+        private float _initialAngle3 = 41.517f;
+
+        private bool _ej2Activated = false;
+        private float _timer = 0;
+
+        /*private float _endAngle0 = 30.66f;
         private float _endAngle1 = 9.22f;
         private float _endAngle2 = 93.03f;
-        private float _endAngle3 = 5.59f;
+        private float _endAngle3 = 5.59f;*/
+
+        private float _endAngle0 = 41.82f;
+        private float _endAngle1 = 2.93f;
+        private float _endAngle2 = 64.20f;
+        private float _endAngle3 = 41.51f;
 
         #region public methods
 
@@ -125,9 +139,10 @@ namespace RobotController
 
         public void PutRobotStraight(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3) {
 
+            _ej2Activated = false;
             //todo: change this, use the function Rotate declared below
             rot0 = Rotate(NullQ, new MyVec(0f,1f,0f), _initialAngle0);
-            rot1 = Rotate(rot0, new MyVec(0f, 1f, 0f), _initialAngle1);
+            rot1 = Rotate(rot0, new MyVec(1f, 0f, 0f), _initialAngle1);
             rot2 = Rotate(rot1, new MyVec(1f, 0f, 0f), _initialAngle2);
             rot3 = Rotate(rot2, new MyVec(1f, 0f, 0f), _initialAngle3);
         }
@@ -145,10 +160,17 @@ namespace RobotController
         public bool PickStudAnim(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3)
         {
 
+            if (!_ej2Activated)
+            {
+                PutRobotStraight(out rot0, out rot1, out rot2, out rot3);
+                _timer = 0;
+                _ej2Activated = true;
+            }
+
             if (_timer <=1.0f)
             {
                 rot0 = Rotate(NullQ, new MyVec(0f, 1f, 0f), Lerp(_initialAngle0, _endAngle0, _timer));
-                rot1 = Rotate(rot0, new MyVec(0f, 1f, 0f), Lerp(_initialAngle1, _endAngle1, _timer));
+                rot1 = Rotate(rot0, new MyVec(1f, 0f, 0f), Lerp(_initialAngle1, _endAngle1, _timer));
                 rot2 = Rotate(rot1, new MyVec(1f, 0f, 0f), Lerp(_initialAngle2, _endAngle2, _timer));
                 rot3 = Rotate(rot2, new MyVec(1f, 0f, 0f), Lerp(_initialAngle3, _endAngle3, _timer));
                 _timer += 0.01f;
@@ -157,7 +179,7 @@ namespace RobotController
 
             //todo: remove this once your code works.
             rot0 = Rotate(NullQ, new MyVec(0f, 1f, 0f), Lerp(_initialAngle0, _endAngle0, _timer));
-            rot1 = Rotate(rot0, new MyVec(0f, 1f, 0f), Lerp(_initialAngle1, _endAngle1, _timer));
+            rot1 = Rotate(rot0, new MyVec(1f, 0f, 0f), Lerp(_initialAngle1, _endAngle1, _timer));
             rot2 = Rotate(rot1, new MyVec(1f, 0f, 0f), Lerp(_initialAngle2, _endAngle2, _timer));
             rot3 = Rotate(rot2, new MyVec(1f, 0f, 0f), Lerp(_initialAngle3, _endAngle3, _timer));
 
