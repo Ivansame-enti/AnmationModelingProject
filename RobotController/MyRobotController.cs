@@ -28,6 +28,7 @@ namespace RobotController
             this.x /= magnitude;
             this.y /= magnitude;
             this.z /= magnitude;
+            this.w /= magnitude;
             return this;
         }
 
@@ -43,6 +44,8 @@ namespace RobotController
         {
             axis.Normalize();
             MyVec v = new MyVec(0, 0, 0);
+            a = a * (float)Math.PI / 180;
+
             v.x = axis.x * (float)Math.Sin(a / 2);
             v.y = axis.y * (float)Math.Sin(a / 2);
             v.z = axis.z * (float)Math.Sin(a / 2);
@@ -50,6 +53,10 @@ namespace RobotController
             return new MyQuat(v.x, v.y, v.z, w).Normalize();
         }
 
+        public static float GetAngle(MyQuat a)
+        {
+            return 2 * (float)Math.Acos(a.w);
+        }
     }
 
     public struct MyVec
@@ -104,12 +111,16 @@ namespace RobotController
 
             //todo: change this, use the function Rotate declared below
             rot0 = Rotate(NullQ, new MyVec(0f,1f,0f), 69f);
-            rot1 = NullQ;
-            rot2 = NullQ;
-            rot3 = NullQ;
+            rot1 = Rotate(rot0, new MyVec(0f, 1f, 0f), 4.2f);
+            rot2 = Rotate(rot1, new MyVec(1f, 0f, 0f), 60f);
+            rot3 = Rotate(rot2, new MyVec(1f, 0f, 0f), 31.4f);
         }
 
+        public MyQuat M2(MyQuat q1, MyQuat q2)
+        {
 
+            return Multiply(q1, q2);
+        }
 
         //EX2: this function will interpolate the rotations necessary to move the arm of the robot until its end effector collides with the target (called Stud_target)
         //it will return true until it has reached its destination. The main project is set up in such a way that when the function returns false, the object will be droped and fall following gravity.
@@ -117,6 +128,22 @@ namespace RobotController
 
         public bool PickStudAnim(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3)
         {
+            //Ponemos en pos inicial
+            /*rot0 = Rotate(NullQ, new MyVec(0f, 1f, 0f), 69f);
+            rot1 = Rotate(rot0, new MyVec(0f, 1f, 0f), 4.2f);
+            rot2 = Rotate(rot1, new MyVec(1f, 0f, 0f), 60f);
+            rot3 = Rotate(rot2, new MyVec(1f, 0f, 0f), 31.4f);
+
+            //posiciones finales
+            MyQuat rot0F = Rotate(NullQ, new MyVec(0f, 1f, 0f), 30.66f);
+            MyQuat rot1F = Rotate(rot0, new MyVec(0f, 1f, 0f), 9.22f);
+            MyQuat rot2F = Rotate(rot1, new MyVec(1f, 0f, 0f), 93.03f);
+            MyQuat rot3F = Rotate(rot2, new MyVec(1f, 0f, 0f), 5.59f);
+
+            float a0 = 30.66f;
+            float a1 = 9.22f;
+            float a2 = 93.03f;
+            float a3 = 5.59f;*/
 
             bool myCondition = false;
             //todo: add a check for your condition
@@ -131,7 +158,7 @@ namespace RobotController
                 rot2 = NullQ;
                 rot3 = NullQ;
 
-
+                //if()
                 return true;
             }
 
@@ -234,8 +261,9 @@ namespace RobotController
 
         internal MyQuat Rotate(MyQuat currentRotation, MyVec axis, float angle)
         {
-
             //todo: change this so it takes currentRotation, and calculate a new quaternion rotated by an angle "angle" radians along the normalized axis "axis"
+            //MyQuat q = new MyQuat(Multiply(currentRotation, MyQuat.FromAngelAxis(axis, angle)));
+            //MyQuat q = new MyQuat(Multiply(Multiply(currentRotation, MyQuat.FromAngelAxis(axis, angle)), currentRotation.Invert()));
             return Multiply(currentRotation, MyQuat.FromAngelAxis(axis, angle));
 
         }
