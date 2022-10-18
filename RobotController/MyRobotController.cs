@@ -111,9 +111,9 @@ namespace RobotController
 
             //todo: change this, use the function Rotate declared below
             rot0 = Rotate(NullQ, new MyVec(0f,1f,0f), 69f);
-            rot1 = Rotate(rot0, new MyVec(0f, 1f, 0f), 4.2f);
-            rot2 = Rotate(rot1, new MyVec(1f, 0f, 0f), 60f);
-            rot3 = Rotate(rot2, new MyVec(1f, 0f, 0f), 31.4f);
+            rot1 = Rotate(rot0, new MyVec(0f, 1f, 0f), 4.37f);
+            rot2 = Rotate(rot1, new MyVec(1f, 0f, 0f), 75.79f);
+            rot3 = Rotate(rot2, new MyVec(1f, 0f, 0f), 33.42f);
         }
 
         public MyQuat M2(MyQuat q1, MyQuat q2)
