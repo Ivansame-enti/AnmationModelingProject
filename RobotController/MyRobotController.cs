@@ -105,7 +105,9 @@ namespace RobotController
         private float _initialAngle3 = 41.517f;
 
         private bool _ej2Activated = false;
-        private float _timer = 0;
+        private float _timer;
+        private float _maxTimer;
+        private int _actualTime;
 
         /*private float _endAngle0 = 30.66f;
         private float _endAngle1 = 9.22f;
@@ -185,6 +187,39 @@ namespace RobotController
 
             return false;
         }
+
+        /*public bool PickStudAnim(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3)
+        {
+
+            if (!_ej2Activated)
+            {
+                PutRobotStraight(out rot0, out rot1, out rot2, out rot3);
+                _actualTime = TimeSinceMidnight;
+                _timer = (float)_actualTime;
+                _maxTimer = (float)_actualTime + 100000;
+                _ej2Activated = true;
+            }
+
+            if (_timer <= _maxTimer)
+            {
+                rot0 = Rotate(NullQ, new MyVec(0f, 1f, 0f), Lerp(_initialAngle0, _endAngle0, _timer / _maxTimer));
+                rot1 = Rotate(rot0, new MyVec(1f, 0f, 0f), Lerp(_initialAngle1, _endAngle1, _timer / _maxTimer));
+                rot2 = Rotate(rot1, new MyVec(1f, 0f, 0f), Lerp(_initialAngle2, _endAngle2, _timer / _maxTimer));
+                rot3 = Rotate(rot2, new MyVec(1f, 0f, 0f), Lerp(_initialAngle3, _endAngle3, _timer / _maxTimer));
+
+                _timer = TimeSinceMidnight;
+                return true;
+            }
+
+            //todo: remove this once your code works.
+            rot0 = Rotate(NullQ, new MyVec(0f, 1f, 0f), Lerp(_initialAngle0, _endAngle0, _timer / _maxTimer));
+            rot1 = Rotate(rot0, new MyVec(1f, 0f, 0f), Lerp(_initialAngle1, _endAngle1, _timer / _maxTimer));
+            rot2 = Rotate(rot1, new MyVec(1f, 0f, 0f), Lerp(_initialAngle2, _endAngle2, _timer / _maxTimer));
+            rot3 = Rotate(rot2, new MyVec(1f, 0f, 0f), Lerp(_initialAngle3, _endAngle3, _timer / _maxTimer));
+
+            return false;
+        }*/
+
 
 
         //EX3: this function will calculate the rotations necessary to move the arm of the robot until its end effector collides with the target (called Stud_target)
