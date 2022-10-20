@@ -162,8 +162,19 @@ namespace RobotController
 
         public void PutRobotStraight(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3) {
 
+            rot0 = Rotate(NullQ, new MyVec(0f, 1f, 0f), 0f);
+            rot1 = Rotate(rot0, new MyVec(1f, 0f, 0f), 0f);
+            rot2 = Rotate(rot1, new MyVec(1f, 0f, 0f), 0f);
+            _sumatoryRot = rot2;
+
+            //rot3 = Rotate(_localSwing, _ex3TwistAxis, Utils.Lerp(_ex3InitialTwistAngle, _ex3FinalTwistAngle, _t));
+
+            rot3 = Rotate(NullQ, new MyVec(1f, 0f, 0f), 0f);
+            rot3 = Rotate(rot3, new MyVec(0f, 1f, 0f), 0f);
+
             _ej2Activated = false;
             _ej3Activated = false;
+
             //todo: change this, use the function Rotate declared below
             rot0 = Rotate(NullQ, new MyVec(0f,1f,0f), _initialAngle0);
             rot1 = Rotate(rot0, new MyVec(1f, 0f, 0f), _initialAngle1);
@@ -190,6 +201,7 @@ namespace RobotController
                 _timer = 0;
                 _ej2Activated = true;
                 _ej3Activated = false;
+
             }
 
             if (_timer <=1.0f)
