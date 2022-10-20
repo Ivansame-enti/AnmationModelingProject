@@ -40,6 +40,10 @@ namespace RobotController
             return this;
         }
 
+
+
+
+
         public static MyQuat FromAngelAxis(MyVec axis, float a)
         {
             axis.Normalize();
@@ -80,6 +84,11 @@ namespace RobotController
             this.x /= magnitude;
             this.y /= magnitude;
             this.z /= magnitude;
+            return this;
+        }
+
+        public MyVec Cross(MyVec vector1,MyVec vector2)
+        {
             return this;
         }
     }
@@ -219,8 +228,23 @@ namespace RobotController
         public static MyQuat GetSwing(MyQuat rot3)
         {
             //todo: change the return value for exercise 3
-            return NullQ;
 
+            MyQuat swing;
+            MyVec r = new MyVec(rot3.x, rot3.y, rot3.z);
+            MyVec swiftAxis = new MyVec(0, 0, 0);
+
+
+            MyVec crossProduct = Cross(r, swiftAxis);
+            float moduloR = (r.x * r.x) + (r.y * r.y) + (r.z * r.z);
+            moduloR = moduloR * moduloR;
+            MyVec proyeccionR = new MyVec(crossProduct.x / moduloR, crossProduct.y / moduloR, crossProduct.z / moduloR) * r;
+
+            MyQuat q = new MyQuat(proyeccionR.x, proyeccionR.y, proyeccionR.z, rot3.w);
+            MyQuat inversa = q.Invert();
+            //swing = Multiply(rot3, inversa);
+
+
+            return NullQ;
         }
 
 
