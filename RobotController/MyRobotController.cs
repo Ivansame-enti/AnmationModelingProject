@@ -7,7 +7,7 @@ namespace RobotController
 {
     public struct MyQuat
     {
-
+        
         public float w;
         public float x;
         public float y;
@@ -21,6 +21,23 @@ namespace RobotController
             this.z = z2;
         }
 
+        public  static MyQuat Multiply2(MyQuat q1, MyQuat q2)
+        {
+
+            float x, y, z, w;
+            x = q1.x * q2.w + q1.y * q2.z - q1.z * q2.y + q1.w * q2.x;
+            y = -q1.x * q2.z + q1.y * q2.w + q1.z * q2.x + q1.w * q2.y;
+            z = q1.x * q2.y - q1.y * q2.x + q1.z * q2.w + q1.w * q2.z;
+            w = -q1.x * q2.x - q1.y * q2.y - q1.z * q2.z + q1.w * q2.w;
+
+            /*a.w* b.w - a.x * b.x - a.y * b.y - a.z * b.z,  // 1
+            a.w* b.x + a.x * b.w + a.y * b.z - a.z * b.y,  // i
+            a.w* b.y - a.x * b.z + a.y * b.w + a.z * b.x,  // j
+            a.w* b.z + a.x * b.y - a.y * b.x + a.z * b.w   // k*/
+            //todo: change this so it returns a multiplication:
+
+            return new MyQuat(x, y, z, w).Normalize();
+        }
         public MyQuat Normalize()
         {
             //MyVec v = new MyVec(this.x, this.y, this.z) / Math.Sqrt(Math.Pow(this.x, 2) + Math.Pow(this.y, 2) + Math.Pow(this.z, 2));
@@ -39,6 +56,10 @@ namespace RobotController
             this.z *= -1;
             return this;
         }
+
+
+
+
 
         public static MyQuat FromAngelAxis(MyVec axis, float a)
         {
@@ -93,7 +114,7 @@ namespace RobotController
     {
 
         
-
+           
         /*private float _initialAngle0 = 69.0f;
         private float _initialAngle1 = 4.37f;
         private float _initialAngle2 = 75.79f;
@@ -105,9 +126,8 @@ namespace RobotController
         private float _initialAngle3 = 41.517f;
 
         private bool _ej2Activated = false;
-        private float _timer;
-        private float _maxTimer;
-        private int _actualTime;
+        private bool _ej3Activated = false;
+        private float _timer = 0;
 
         /*private float _endAngle0 = 30.66f;
         private float _endAngle1 = 9.22f;
@@ -119,6 +139,7 @@ namespace RobotController
         private float _endAngle2 = 64.20f;
         private float _endAngle3 = 41.51f;
 
+        private static MyQuat _sumatoryRot;
         #region public methods
 
 
@@ -141,7 +162,19 @@ namespace RobotController
 
         public void PutRobotStraight(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3) {
 
+            rot0 = Rotate(NullQ, new MyVec(0f, 1f, 0f), 0f);
+            rot1 = Rotate(rot0, new MyVec(1f, 0f, 0f), 0f);
+            rot2 = Rotate(rot1, new MyVec(1f, 0f, 0f), 0f);
+            _sumatoryRot = rot2;
+
+            //rot3 = Rotate(_localSwing, _ex3TwistAxis, Utils.Lerp(_ex3InitialTwistAngle, _ex3FinalTwistAngle, _t));
+
+            rot3 = Rotate(NullQ, new MyVec(1f, 0f, 0f), 0f);
+            rot3 = Rotate(rot3, new MyVec(0f, 1f, 0f), 0f);
+
             _ej2Activated = false;
+            _ej3Activated = false;
+
             //todo: change this, use the function Rotate declared below
             rot0 = Rotate(NullQ, new MyVec(0f,1f,0f), _initialAngle0);
             rot1 = Rotate(rot0, new MyVec(1f, 0f, 0f), _initialAngle1);
@@ -167,6 +200,8 @@ namespace RobotController
                 PutRobotStraight(out rot0, out rot1, out rot2, out rot3);
                 _timer = 0;
                 _ej2Activated = true;
+                _ej3Activated = false;
+
             }
 
             if (_timer <=1.0f)
@@ -228,24 +263,46 @@ namespace RobotController
 
         public bool PickStudAnimVertical(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3)
         {
-
-            bool myCondition = false;
             //todo: add a check for your condition
 
-
-
-            while (myCondition)
+            if (!_ej3Activated)
             {
-                //todo: add your code here
+                PutRobotStraight(out rot0, out rot1, out rot2, out rot3);
+                _timer = 0;
+                _ej2Activated = false;
+                _ej3Activated = true;
+                //resetTwist(rot3);
+            }
+
+
+            if (_timer <= 1.0f)
+            {   
+                rot0 = Rotate(NullQ, new MyVec(0f, 1f, 0f), Lerp(_initialAngle0, _endAngle0, _timer));
+                rot1 = Rotate(rot0, new MyVec(1f, 0f, 0f), Lerp(_initialAngle1, _endAngle1, _timer));
+                rot2 = Rotate(rot1, new MyVec(1f, 0f, 0f), Lerp(_initialAngle2, _endAngle2, _timer));
+                _sumatoryRot = rot2;
+
+                //rot3 = Rotate(_localSwing, _ex3TwistAxis, Utils.Lerp(_ex3InitialTwistAngle, _ex3FinalTwistAngle, _t));
+
+                rot3 = Rotate(NullQ, new MyVec(1f, 0f, 0f), Lerp(_initialAngle3, _endAngle3, _timer));
+                rot3 = Rotate(rot3, new MyVec(0f, 1f, 0f), Lerp(0, 90, _timer));
+                
+                //rot3 = Rotate(rot2, new MyVec(1f, 0f, 0f), Lerp(_initialAngle3, _endAngle3, _timer));
+                _timer += 0.01f;
+                
+                return true;
 
 
             }
 
             //todo: remove this once your code works.
-            rot0 = NullQ;
-            rot1 = NullQ;
-            rot2 = NullQ;
-            rot3 = NullQ;
+            rot0 = Rotate(NullQ, new MyVec(0f, 1f, 0f), Lerp(_initialAngle0, _endAngle0, _timer));
+            rot1 = Rotate(rot0, new MyVec(1f, 0f, 0f), Lerp(_initialAngle1, _endAngle1, _timer));
+            rot2 = Rotate(rot1, new MyVec(1f, 0f, 0f), Lerp(_initialAngle2, _endAngle2, _timer));
+            _sumatoryRot = rot2;
+
+            rot3 = Rotate(NullQ, new MyVec(1f, 0f, 0f), Lerp(_initialAngle3, _endAngle3, _timer));
+            rot3 = Rotate(rot3, new MyVec(0f, 1f, 0f), Lerp(0, 90, _timer));
 
             return false;
         }
@@ -253,20 +310,26 @@ namespace RobotController
 
         public static MyQuat GetSwing(MyQuat rot3)
         {
-            //todo: change the return value for exercise 3
-            return NullQ;
+            MyQuat twist = GetTwist2(rot3);
 
+            MyQuat inversa = twist.Invert();
+
+            MyQuat swing = MyQuat.Multiply2(rot3,inversa);
+
+            return MyQuat.Multiply2(_sumatoryRot, swing);
         }
-
 
         public static MyQuat GetTwist(MyQuat rot3)
         {
-            //todo: change the return value for exercise 3
-            return NullQ;
-
+            return MyQuat.Multiply2(GetSwing(rot3), GetTwist2(rot3));
         }
 
-
+        public static MyQuat GetTwist2(MyQuat rot3)
+        {
+            MyQuat q = new MyQuat(0, rot3.y, 0, rot3.w);
+            q.Normalize();
+            return q;
+        }
 
 
         #endregion
@@ -299,21 +362,13 @@ namespace RobotController
             z = q1.x * q2.y - q1.y * q2.x + q1.z * q2.w + q1.w * q2.z;
             w = -q1.x * q2.x - q1.y * q2.y - q1.z * q2.z + q1.w * q2.w;
 
-            /*a.w* b.w - a.x * b.x - a.y * b.y - a.z * b.z,  // 1
-            a.w* b.x + a.x * b.w + a.y * b.z - a.z * b.y,  // i
-            a.w* b.y - a.x * b.z + a.y * b.w + a.z * b.x,  // j
-            a.w* b.z + a.x * b.y - a.y * b.x + a.z * b.w   // k*/
-            //todo: change this so it returns a multiplication:
-
             return new MyQuat(x,y,z,w).Normalize();
 
         }
 
         internal MyQuat Rotate(MyQuat currentRotation, MyVec axis, float angle)
         {
-            //todo: change this so it takes currentRotation, and calculate a new quaternion rotated by an angle "angle" radians along the normalized axis "axis"
-            //MyQuat q = new MyQuat(Multiply(currentRotation, MyQuat.FromAngelAxis(axis, angle)));
-            //MyQuat q = new MyQuat(Multiply(Multiply(currentRotation, MyQuat.FromAngelAxis(axis, angle)), currentRotation.Invert()));
+
             return Multiply(currentRotation, MyQuat.FromAngelAxis(axis, angle));
 
         }
